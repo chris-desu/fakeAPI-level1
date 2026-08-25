@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>pay here</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,body{
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100dvw;
+  min-height: 100dvh;
+  background-color: #f1f1f1;
+}
+
+.card{
+  width: 85%;
+  height: 85%;
+  max-width: 600px;
+  height: 500px;
+  background-color: #fff;
+  box-shadow: 3px 3px 3px rgba(100,100,100,0.3);
+  display: flex;
+  margin: auto auto;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 5px;
+  position: relative;
+}
+
+.card > .myTexT{
+  width: 85%;
+  height: 50px;
+  padding: 10px;
+  outline: none;
+  border: 2px solid lightblue;
+  border-radius: 10px;
+  font-size: clamp(16px,10vw,18px);
+  font-weight: bolder;
+  font-family: Sans-Serif;
+}
+
+.card > .submit{
+  width: 100px;
+  height: 45px;
+  background-color: blue;
+  color: white;
+  font-size: clamp(18px,10vw,24px);
+  border: 0;
+  border-radius: 5px;
+  transition: .1s;
+}
+
+.submit:is(:active){
+  background-color: rgba(0,0,255,0.7);
+}
+
+.card > .sent{
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  z-index: -1;
+  background-color: #f1f1f1;
+  border: 2px solid lightblue;
+  top: 0;
+  left: 0;
+  transform: translateY(50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  word-break: break-word;
+  word-wrap: wrap;
+  text-wrap: wrap;
+}
+
+.sent.show{
+  z-index: 1;
+}
+
+</style>
+</head>
+<body>
+  <div class="card">
+    <h3 class="idd">PREMIUM USER?</h3>
+    <input type="number" class="myTexT number" placeholder="phone" required="phone number" maxlength="11">
+    <input type="number" class="myTexT amount" placeholder="amount is 100ghc to 530ghc" required="amount" accept="number">
+    <button class="submit">pay</button>
+    <div class="sent">
+      sent
+    </div>
+  </div>
+<script>
+  const myTexT = Array.from(document.querySelectorAll(".myTexT"));
+  const submit = document.querySelector(".submit");
+  const sent = document.querySelector(".sent");
+  const idd = document.querySelector(".idd");
+  //let paymentURL = "http://localhost:3000/subscribe"
+  const [phone,amount] = myTexT;
+  phone.addEventListener("click" , () =>{
+    phone.value = "233";
+    phone.value = +phone.value;
+  })
+  
+  async function subscribe(){
+    try{
+      
+      //checking if boxes are empty
+       myTexT.forEach(input =>{
+         if(input.value.trim() === ""){
+           throw new Error("Error\n kindly make sure to fill it the details");
+         }
+         })// check ends here
+         
+         //checking if phone is up to 11 chars
+         if(phone.value.length !== 12){
+           throw new Error("please , kindly provide a valid phone number")
+         }//11 chars ends here;
+         
+         //checking if amount is valid 100ghc -> 530ghc
+         if(amount.value.trim() < 100 || amount.value.trim() > 530){
+           throw new Error("invalid amount")
+         }
+         
+         const $phone = phone.value.trim();
+         const $amount = amount.value.trim();
+         
+         //fetching here
+         let send = await fetch(`http://localhost:3000/subscribe/phone/${$phone}/amount/${$amount}` ,{
+           "method": "GET",
+           "headers":{
+             "Content-Type":"application/json"
+           }
+         })
+         
+         let response = await send.json();
+         sent.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><br /> <strong>processing &nbsp; 😎</strong>`;
+         sent.classList.toggle('show');
+         sent.innerHTML = response;
+         if(response){
+           submit.textContent = "paid";
+           idd.textContent = "PREMIUM USER";
+           setTimeout(() =>{
+             window.location.href = "https://cipha.netlify.app/";
+           },4300)
+         }
+    }catch(error){
+      sent.textContent = error.stack;
+      sent.classList.toggle('show');
+      setTimeout(() => {
+        sent.classList.remove('show');
+      },2000)
+    }
+    
+  }
+  
+  submit.addEventListener("click" , subscribe);
+</script>
+</body>
+</html>
